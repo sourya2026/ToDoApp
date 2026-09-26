@@ -1,0 +1,31 @@
+# Render blueprint - https://render.com/docs/blueprint-spec
+#
+# One web service serves BOTH the API and the built React client from a single
+# origin, so a bookmarked /items/<id> URL loads on a hard refresh and no CORS
+# configuration is needed.
+#
+# Render has no managed MongoDB, so MONGO_URL must point at MongoDB Atlas.
+# It is marked sync:false: Render prompts for it instead of storing it here.
+
+services:
+  - type: web
+    name: todoapp
+    runtime: node
+    plan: free
+    region: singapore          # pick the region closest to your team
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.15.0
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URL          # Atlas SRV string, incl. the database name
+        sync: false
+      - key: JWT_SECRET         # Render generates one and keeps it secret
+        generateValue: true
+      - key: SEED_ON_EMPTY      # lays down the sample data on the FIRST deploy
+        value: "true"           # only when the database has no users at all

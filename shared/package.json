@@ -1,0 +1,13 @@
+{
+  "name": "@todo/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Constants and the can() permission function, shared by the API and the UI.",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./constants.js": "./constants.js",
+    "./permissions.js": "./permissions.js"
+  }
+}
