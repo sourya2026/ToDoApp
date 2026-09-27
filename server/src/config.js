@@ -29,4 +29,34 @@ if (isProd && config.jwtSecret === 'dev-only-secret-change-me') {
   console.warn('[config] JWT_SECRET is not set - sessions are signed with a public default. Set it.');
 }
 
+/**
+ * Fail loudly and specifically in production.
+ *
+ * Without this, a missing MONGO_URL silently falls back to localhost, and the
+ * deploy dies 5 seconds later with "could not reach MongoDB at
+ * mongodb://localhost:27017" - which looks like a database problem when it is
+ * actually an unset environment variable.
+ */
+export function assertDeployable() {
+  if (!isProd) return;
+  const problems = [];
+
+  if (!process.env.MONGO_URL) {
+    problems.push('MONGO_URL is not set. Add your MongoDB Atlas connection string '
+      + 'in the Render dashboard under Environment.');
+  } else if (!/^mongodb(\+srv)?:\/\//.test(process.env.MONGO_URL)) {
+    problems.push('MONGO_URL does not look like a connection string '
+      + '(it should start with "mongodb+srv://" or "mongodb://").');
+  } else if (!/mongodb(\+srv)?:\/\/[^/]+\/[^/?]+/.test(process.env.MONGO_URL)) {
+    problems.push('MONGO_URL has no database name. Add one before the "?", '
+      + 'e.g. ...mongodb.net/todo_tracker?retryWrites=true - otherwise everything '
+      + 'is written to a database called "test".');
+  }
+
+  if (problems.length) {
+    console.error('\n[config] cannot start:\n' + problems.map((p) => '  - ' + p).join('\n') + '\n');
+    process.exit(1);
+  }
+}
+
 export default config;

@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { existsSync } from 'node:fs';
 
-import config from './config.js';
+import config, { assertDeployable } from './config.js';
 import { connectDb } from './db.js';
 import { attachRequestId, notFoundHandler, errorHandler } from './middleware/error.js';
 
@@ -84,6 +84,9 @@ async function seedIfEmpty() {
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (isMain) {
   try {
+    // Check the environment before dialling out, so a missing variable is
+    // reported as a missing variable rather than a connection timeout.
+    assertDeployable();
     await connectDb();
     await seedIfEmpty();
     const app = createApp();

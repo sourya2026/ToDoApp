@@ -1,8 +1,8 @@
 # Render blueprint - https://render.com/docs/blueprint-spec
 #
 # One web service serves BOTH the API and the built React client from a single
-# origin, so a bookmarked /items/<id> URL loads on a hard refresh and no CORS
-# configuration is needed.
+# origin, so a bookmarked /items/<id> URL loads on a hard refresh and there is
+# no CORS to configure.
 #
 # Render has no managed MongoDB, so MONGO_URL must point at MongoDB Atlas.
 # It is marked sync:false: Render prompts for it instead of storing it here.
@@ -19,11 +19,13 @@ services:
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
+      # 22 LTS: some transitive dev dependencies require >= 20.19, and this
+      # keeps the install log free of engine warnings.
       - key: NODE_VERSION
-        value: 20.15.0
+        value: "22.11.0"
       - key: NODE_ENV
         value: production
-      - key: MONGO_URL          # Atlas SRV string, incl. the database name
+      - key: MONGO_URL          # Atlas SRV string, INCLUDING the database name
         sync: false
       - key: JWT_SECRET         # Render generates one and keeps it secret
         generateValue: true

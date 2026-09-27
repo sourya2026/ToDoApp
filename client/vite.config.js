@@ -11,5 +11,7 @@ export default defineConfig({
       '/api': { target: 'http://localhost:4000', changeOrigin: true },
     },
   },
-  build: { outDir: 'dist', sourcemap: true },
+  // No source maps in production: they add ~2.6 MB to the deploy, slow the
+  // build on a small instance, and publish the unminified source.
+  build: { outDir: 'dist', sourcemap: false },
 });
